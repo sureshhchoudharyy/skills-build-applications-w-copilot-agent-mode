@@ -1,5 +1,5 @@
 import express from 'express'
-import mongoose from 'mongoose'
+import { connectDatabase } from './database.ts'
 import usersRouter from './routes/users.ts'
 import teamsRouter from './routes/teams.ts'
 import activitiesRouter from './routes/activities.ts'
@@ -10,7 +10,6 @@ const app = express()
 const port = 8000
 const codespaceName = process.env.CODESPACE_NAME
 const host = codespaceName ? `https://${codespaceName}-8000.githubpreview.dev` : `http://localhost:${port}`
-const mongoUri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/octofit_db'
 
 app.use(express.json())
 app.use('/api/users', usersRouter)
@@ -23,10 +22,8 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', apiUrl: host, message: 'OctoFit Tracker API is running' })
 })
 
-mongoose
-  .connect(mongoUri)
+connectDatabase()
   .then(() => {
-    console.log('Connected to MongoDB')
     app.listen(port, () => {
       console.log(`Backend listening on ${host}`)
     })
